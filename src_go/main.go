@@ -35,11 +35,6 @@ func main() {
 		log.Fatalf("File not downloaded as no new changed has occured since last read. Exiting.")
 	}
 
-	err = setLatestModifiedDate(fileRes.Header.Get("Last-Modified"))
-	if err != nil {
-		log.Fatalf("Problem setting the file modified date: " + err.Error())
-	}
-
 	StoresAsBytes, err := DecodeGzipToYaml(fileRes)
 	if err != nil {
 		log.Fatalf("Problem decoding gzipped file: " + err.Error() + " pro")
@@ -51,27 +46,32 @@ func main() {
 	}
 	// Waiting for the goroutines to finish.
 	// Should implement channels to
-	// wait for all goroutines to be done, but this
+	// wait for all goroutines to be done,
+	// in order to verify all has gone well,
+	// so we could "setLatestModifiedDate" but this
 	// is quick and dirty
 	time.Sleep(5 * time.Second)
+	err = setLatestModifiedDate(fileRes.Header.Get("Last-Modified"))
+	if err != nil {
+		log.Fatalf("Problem setting the file modified date: " + err.Error())
+	}
 	fmt.Println("Done!")
 }
 
-func updateMapToStoreIfModified(storeID string, storeMap Store) {
-	store, err := storesDB.GetStore(storeID)
+func updateMapToStoreIfModified(storeId string, storeMap Store) {
+	store, err := storesDB.GetStore(storeId)
 	if err != nil {
 		log.Fatalf("Problem finding store in db " + err.Error())
 	}
 
 	mapHashFromYaml := shaOne(storeMap.Map)
 	if mapHashFromYaml != store.LatestMapHash {
-		sendNewMapToStore(storeID, storeMap)
-		storesDB.UpdateStore(mapHashFromYaml, storeID)
+		sendNewMapToStore(storeId, storeMap)
+		storesDB.UpdateStore(mapHashFromYaml, storeId)
 	}
 }
 
 func sendNewMapToStore(storeId string, store Store) {
-
 	broker := "localhost"
 	port := 8883
 	opts := mqtt.NewClientOptions()

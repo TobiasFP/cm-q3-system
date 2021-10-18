@@ -1,0 +1,154 @@
+[
+    {
+        "label": "sys",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "sys",
+        "description": "sys",
+        "detail": "sys",
+        "documentation": {}
+    },
+    {
+        "label": "requests",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "requests",
+        "description": "requests",
+        "detail": "requests",
+        "documentation": {}
+    },
+    {
+        "label": "zlib",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "zlib",
+        "description": "zlib",
+        "detail": "zlib",
+        "documentation": {}
+    },
+    {
+        "label": "Response",
+        "importPath": "requests.models",
+        "description": "requests.models",
+        "isExtraImport": true,
+        "detail": "requests.models",
+        "documentation": {}
+    },
+    {
+        "label": "yaml",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "yaml",
+        "description": "yaml",
+        "detail": "yaml",
+        "documentation": {}
+    },
+    {
+        "label": "pymysql",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "pymysql",
+        "description": "pymysql",
+        "detail": "pymysql",
+        "documentation": {}
+    },
+    {
+        "label": "hashlib",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "hashlib",
+        "description": "hashlib",
+        "detail": "hashlib",
+        "documentation": {}
+    },
+    {
+        "label": "multiprocessing",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "multiprocessing",
+        "description": "multiprocessing",
+        "detail": "multiprocessing",
+        "documentation": {}
+    },
+    {
+        "label": "main",
+        "kind": 2,
+        "importPath": "code.main",
+        "description": "code.main",
+        "peekOfCode": "def main() -> int:\n    # Missing some error handling\n    file_res = get_file_if_new(\n        \"http://localhost:2000/maps.yaml.gz\", get_latest_modified_date())\n    if (file_res.status_code == 304):\n        print(\"File not downloaded as no new changed has occured since last read. Exiting.\")\n        return -1\n    # I declare a variable here to maintain readability.\n    stores_as_yaml = zlib.decompress(file_res.content, 16+zlib.MAX_WBITS)\n    stores = yaml.safe_load(stores_as_yaml)",
+        "detail": "code.main",
+        "documentation": {}
+    },
+    {
+        "label": "update_map_to_store_if_modified",
+        "kind": 2,
+        "importPath": "code.main",
+        "description": "code.main",
+        "peekOfCode": "def update_map_to_store_if_modified(store_key: str, store_map: str):\n    latest_map_hash = get_store(store_key)[1]\n    store_map_hash = hashlib.sha1(str.encode(store_map)).hexdigest()\n    if store_map_hash != str(latest_map_hash):\n        send_new_map_to_store(store_key, store_map)\n        update_store_in_db(store_map_hash, store_key)\ndef send_new_map_to_store(store_id: str, store_map: str):\n    # Missing mqtt implementation.\n    # To see how I would handle this, please see the file:\n    # ../src_ggo/main.go function sendNewMapToStore",
+        "detail": "code.main",
+        "documentation": {}
+    },
+    {
+        "label": "send_new_map_to_store",
+        "kind": 2,
+        "importPath": "code.main",
+        "description": "code.main",
+        "peekOfCode": "def send_new_map_to_store(store_id: str, store_map: str):\n    # Missing mqtt implementation.\n    # To see how I would handle this, please see the file:\n    # ../src_ggo/main.go function sendNewMapToStore\n    print(store_id)\ndef update_store_in_db(new_map_hash: str, store_id: str):\n    conn = get_sql_connection()\n    cur = conn.cursor()\n    cur.execute(\n        f'update stores set LatestMapHash = \"{new_map_hash}\" where StoreId = \"{store_id}\"')",
+        "detail": "code.main",
+        "documentation": {}
+    },
+    {
+        "label": "update_store_in_db",
+        "kind": 2,
+        "importPath": "code.main",
+        "description": "code.main",
+        "peekOfCode": "def update_store_in_db(new_map_hash: str, store_id: str):\n    conn = get_sql_connection()\n    cur = conn.cursor()\n    cur.execute(\n        f'update stores set LatestMapHash = \"{new_map_hash}\" where StoreId = \"{store_id}\"')\n    cur.close()\ndef get_sql_connection():\n    return pymysql.connect(host='localhost', port=23312,\n                           user='dev', passwd='dev', db='stores')\ndef get_store(store_id: str) -> tuple:",
+        "detail": "code.main",
+        "documentation": {}
+    },
+    {
+        "label": "get_sql_connection",
+        "kind": 2,
+        "importPath": "code.main",
+        "description": "code.main",
+        "peekOfCode": "def get_sql_connection():\n    return pymysql.connect(host='localhost', port=23312,\n                           user='dev', passwd='dev', db='stores')\ndef get_store(store_id: str) -> tuple:\n    conn = get_sql_connection()\n    cur = conn.cursor()\n    cur.execute(f'SELECT * FROM stores WHERE StoreId = \"{store_id}\"')\n    res = cur.fetchone()\n    cur.close()\n    conn.close()",
+        "detail": "code.main",
+        "documentation": {}
+    },
+    {
+        "label": "get_store",
+        "kind": 2,
+        "importPath": "code.main",
+        "description": "code.main",
+        "peekOfCode": "def get_store(store_id: str) -> tuple:\n    conn = get_sql_connection()\n    cur = conn.cursor()\n    cur.execute(f'SELECT * FROM stores WHERE StoreId = \"{store_id}\"')\n    res = cur.fetchone()\n    cur.close()\n    conn.close()\n    return res\ndef get_file_if_new(url: str, lastly_modified: str) -> Response:\n    return requests.get(url, headers={\"If-Modified-Since\": lastly_modified})",
+        "detail": "code.main",
+        "documentation": {}
+    },
+    {
+        "label": "get_file_if_new",
+        "kind": 2,
+        "importPath": "code.main",
+        "description": "code.main",
+        "peekOfCode": "def get_file_if_new(url: str, lastly_modified: str) -> Response:\n    return requests.get(url, headers={\"If-Modified-Since\": lastly_modified})\ndef get_latest_modified_date() -> str:\n    f = open(\"./data/modified-date.txt\", \"r\")\n    date = f.read()\n    f.close()\n    return date\ndef set_latest_modified_date(date: str):\n    f = open(\"./data/modified-date.txt\", \"w\")\n    f.write(date)",
+        "detail": "code.main",
+        "documentation": {}
+    },
+    {
+        "label": "get_latest_modified_date",
+        "kind": 2,
+        "importPath": "code.main",
+        "description": "code.main",
+        "peekOfCode": "def get_latest_modified_date() -> str:\n    f = open(\"./data/modified-date.txt\", \"r\")\n    date = f.read()\n    f.close()\n    return date\ndef set_latest_modified_date(date: str):\n    f = open(\"./data/modified-date.txt\", \"w\")\n    f.write(date)\n    f.close()\nif __name__ == '__main__':",
+        "detail": "code.main",
+        "documentation": {}
+    },
+    {
+        "label": "set_latest_modified_date",
+        "kind": 2,
+        "importPath": "code.main",
+        "description": "code.main",
+        "peekOfCode": "def set_latest_modified_date(date: str):\n    f = open(\"./data/modified-date.txt\", \"w\")\n    f.write(date)\n    f.close()\nif __name__ == '__main__':\n    sys.exit(main())",
+        "detail": "code.main",
+        "documentation": {}
+    }
+]
