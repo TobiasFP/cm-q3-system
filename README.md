@@ -17,4 +17,5 @@ This is my take on the question 3 "Design a system to update robot's maps in sto
 ## Setting up
 
 - docker-compose up -d
-- ./src/cm-q3-watcher_linux || src/cm-q3-watcher_mac || src/cm-q3-watcher.exe
+- cd src
+- ./cm-q3-watcher_linux || ./cm-q3-watcher_mac || cm-q3-watcher.exe
