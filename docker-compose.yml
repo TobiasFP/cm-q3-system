@@ -1,0 +1,65 @@
+version: "3.8"
+
+services:
+  mysql:
+    image: library/mysql:5.7.35
+    container_name: mysql
+    stop_grace_period: 30s
+    environment:
+      MYSQL_DATABASE: ${API_MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ALLOW_EMPTY_PASSWORD: 1
+    env_file:
+      - ./.env
+    networks:
+      local-network:
+        ipv4_address: 172.15.238.22
+    volumes:
+      - ./mysql:/var/lib/mysql
+      - ./docker/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql:rw
+    ports:
+      - 23312:3306
+
+  http-server:
+    image: nginx
+    container_name: http-server
+    networks:
+      aws-maps-network:
+        ipv4_address: 172.16.238.71
+    ports:
+      - 2000:80
+    volumes:
+      - ./http:/usr/share/nginx/html
+
+  mosquitto:
+    image: eclipse-mosquitto
+    container_name: message-broker
+    ports:
+      - 1883:1883
+      - 8883:8883
+    volumes:
+      - ./mqtt/mosquitto-data:/mosquitto/data
+      - ./mqtt/mosquitto-logs:/mosquitto/logs
+      - ./mqtt/mosquitto-conf:/mosquitto/config
+      - ./mqtt/password:/mosquitto/users/password.txt
+
+networks:
+  aws-maps-network:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: "172.16.238.0/24"
+  local-network:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: "172.15.238.0/24"
+  store-1-network:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: "172.14.238.0/24"
